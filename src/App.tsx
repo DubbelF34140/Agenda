@@ -1,3 +1,4 @@
+// @ts-ignore
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';  // Importation correcte
 import { AuthProvider } from './hooks/useAuth';
@@ -8,6 +9,7 @@ import Groups from './pages/Groups';
 import Auth from './pages/Auth';
 import SignUp from './pages/SignUp.tsx';
 import GroupDetails from "./pages/GroupDetail.tsx";
+import AdminRoute from "./components/AdminRoute.tsx";
 
 function App() {
     return (
@@ -26,6 +28,14 @@ function App() {
                                     <PrivateRoute>
                                         <Groups />
                                     </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/game"
+                                element={
+                                    <AdminRoute>
+                                        <Groups />
+                                    </AdminRoute>
                                 }
                             />
                             <Route

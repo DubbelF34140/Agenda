@@ -13,6 +13,7 @@ const getAuthToken = () => localStorage.getItem('authToken');
 
 export default function GroupDetails() {
     const { id } = useParams<{ id: string }>();
+    // @ts-ignore
     const [group, setGroup] = useState<any>(null);
     const [members, setMembers] = useState<any[]>([]);
     const [events, setEvents] = useState<any[]>([]);
@@ -21,8 +22,11 @@ export default function GroupDetails() {
     const [newEvent, setNewEvent] = useState({ title: '', description: '', start: '', end: '' });
     const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; userId: string } | null>(null);
     const API_URL = import.meta.env.VITE_API_URL;
+    const [deletedID, setdeletedID] = useState<string | null>(null);
 
+    // @ts-ignore
     const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+    // @ts-ignore
     const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
     useEffect(() => {
@@ -53,21 +57,38 @@ export default function GroupDetails() {
     }, [id]);
 
     const handleRightClick = (event: React.MouseEvent, member: any) => {
-        event.preventDefault();
+        if (member.role != 'OWNER'){
+            event.preventDefault();
 
-        if ((currentUserRole === 'OWNER' || currentUserRole === 'MODERATOR') && member.role !== 'OWNER') {
-            console.log('right click')
-            setContextMenu({ visible: true, x: event.clientX, y: event.clientY, userId: member.user_id });
+            const { clientX: x, clientY: y } = event;
+            const maxX = window.innerWidth - 150;
+            const maxY = window.innerHeight - 50;
+            setdeletedID(member.id);
+
+            setContextMenu({
+                visible: true,
+                x: Math.min(x, maxX),
+                y: Math.min(y, maxY),
+                userId: member.id
+            });
         }
     };
 
-    const handleRemoveUser = async (userId: string) => {
+
+    useEffect(() => {
+        const handleClickOutside = () => setContextMenu(null);
+        document.addEventListener("click", handleClickOutside);
+        return () => document.removeEventListener("click", handleClickOutside);
+    }, []);
+
+
+    const handleRemoveUser = async () => {
         const token = getAuthToken();
 
         try {
             const response = await axios.post(
-                `${API_URL}/api/groups/${id}/remove`,
-                { userId: userId },
+                `${API_URL}/groups/${id}/remove`,
+                { userId: deletedID },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -75,11 +96,11 @@ export default function GroupDetails() {
                 }
             );
             console.log('User removed successfully', response);
-        } catch (error) {
+        } catch (error) {// @ts-ignore
             console.error('Error removing user', error.response ? error.response.data : error.message);
         }
 
-        setMembers(members.filter((member) => member.user_id !== userId));
+        setMembers(members.filter((member) => member.user_id !== deletedID));
         setContextMenu(null);
     };
 
@@ -131,7 +152,7 @@ export default function GroupDetails() {
                         selectable={true}
                         selectMirror={true}
                         dayMaxEvents={true}
-                        eventClick={(info) => alert(`Event: ${info.event.title}\nDescription: ${info.event.extendedProps.description}`)}
+                        eventClick={(info) => alert(`Event: ${info.event.title}\nDescription: ${info.event.extendedProps.description}`)}// @ts-ignore
                         select={(selectInfo) => setNewEvent({ title: '', description: '', start: selectInfo.startStr, end: selectInfo.endStr }) || setShowNewEventModal(true)}
                         height="100%"
                     />
@@ -141,7 +162,7 @@ export default function GroupDetails() {
             {/* Context Menu */}
             {contextMenu?.visible && (
                 <div className="absolute bg-gray-800 text-white rounded shadow-lg py-2 px-4" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                    <button onClick={() => handleRemoveUser(contextMenu.userId)} className="block px-4 py-2 text-sm hover:bg-red-600 w-full text-left">Remove User</button>
+                    <button onClick={() => handleRemoveUser()} className="block px-4 py-2 text-sm hover:bg-red-600 w-full text-left">Remove User</button>
                 </div>
             )}
 

@@ -84,7 +84,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Logout function
   const logout = () => {
-    localStorage.removeItem('authToken'); // Remove the token
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
     setUser(null); // Clear user data
     setLoading(false); // Stop loading state
     navigate('/auth'); // Redirect to login page
