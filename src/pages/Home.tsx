@@ -1,6 +1,5 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Users, Calendar, GamepadIcon } from 'lucide-react';
 
 export default function Home() {
   return (
@@ -17,7 +16,6 @@ export default function Home() {
       <div className="grid md:grid-cols-2 gap-8">
         <div className="bg-white rounded-lg shadow-md p-8 transform hover:scale-105 transition-transform duration-200">
           <div className="flex items-center mb-4">
-            <Users className="w-8 h-8 text-indigo-600" />
             <h2 className="text-2xl font-semibold ml-3">Create Groups</h2>
           </div>
           <p className="text-gray-600 mb-6">
@@ -28,13 +26,11 @@ export default function Home() {
             className="inline-flex items-center text-indigo-600 hover:text-indigo-800"
           >
             <span>Manage Groups</span>
-            <GamepadIcon className="w-4 h-4 ml-2" />
           </Link>
         </div>
 
         <div className="bg-white rounded-lg shadow-md p-8 transform hover:scale-105 transition-transform duration-200">
           <div className="flex items-center mb-4">
-            <Calendar className="w-8 h-8 text-indigo-600" />
             <h2 className="text-2xl font-semibold ml-3">Schedule Events</h2>
           </div>
           <p className="text-gray-600 mb-6">
@@ -45,7 +41,6 @@ export default function Home() {
             className="inline-flex items-center text-indigo-600 hover:text-indigo-800"
           >
             <span>View Calendar</span>
-            <Calendar className="w-4 h-4 ml-2" />
           </Link>
         </div>
       </div>

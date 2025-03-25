@@ -1,54 +1,47 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';  // Importation correcte
 import { AuthProvider } from './hooks/useAuth';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Groups from './pages/Groups';
-import GroupDetails from './pages/GroupDetails';
-import Calendar from './pages/Calendar';
 import Auth from './pages/Auth';
+import SignUp from './pages/SignUp.tsx';
+import GroupDetails from "./pages/GroupDetail.tsx";
 
 function App() {
-  return (
-    <AuthProvider>
-      <Router>
-        <div className="min-h-screen bg-gray-50">
-          <Navbar />
-          <main className="container mx-auto px-4 py-8">
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route 
-                path="/groups" 
-                element={
-                  <PrivateRoute>
-                    <Groups />
-                  </PrivateRoute>
-                } 
-              />
-              <Route 
-                path="/groups/:id" 
-                element={
-                  <PrivateRoute>
-                    <GroupDetails />
-                  </PrivateRoute>
-                } 
-              />
-              <Route 
-                path="/groups/:id/calendar" 
-                element={
-                  <PrivateRoute>
-                    <Calendar />
-                  </PrivateRoute>
-                } 
-              />
-            </Routes>
-          </main>
-        </div>
-      </Router>
-    </AuthProvider>
-  );
+    return (
+        <Router>
+            <AuthProvider>
+                <div className="min-h-screen bg-gray-50">
+                    <Navbar />
+                    <main className="container mx-auto px-4 py-8">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/auth" element={<Auth />} />
+                            <Route path="/signup" element={<SignUp />} />
+                            <Route
+                                path="/groups"
+                                element={
+                                    <PrivateRoute>
+                                        <Groups />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/groups/:id"
+                                element={
+                                    <PrivateRoute>
+                                        <GroupDetails/>
+                                    </PrivateRoute>
+                                }
+                            />
+                        </Routes>
+                    </main>
+                </div>
+            </AuthProvider>
+        </Router>
+    );
 }
 
 export default App;
