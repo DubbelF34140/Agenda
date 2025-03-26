@@ -6,14 +6,16 @@ import timeGridPlugin from '@fullcalendar/timegrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import { UserIcon } from "@heroicons/react/16/solid";
 import InviteUserModal from '../components/InviteUserModal';
+import NewEventForm from '../components/NewEventForm';
 import axios from "axios";
+import EventDetailsModal from "../components/EventDetailsModal.tsx";
 
 // Fonction pour récupérer le token JWT depuis le localStorage
 const getAuthToken = () => localStorage.getItem('authToken');
 
 export default function GroupDetails() {
+    const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem('user') as string));
     const { id } = useParams<{ id: string }>();
-    // @ts-ignore
     const [group, setGroup] = useState<any>(null);
     const [members, setMembers] = useState<any[]>([]);
     const [events, setEvents] = useState<any[]>([]);
@@ -22,12 +24,11 @@ export default function GroupDetails() {
     const [newEvent, setNewEvent] = useState({ title: '', description: '', start: '', end: '' });
     const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; userId: string } | null>(null);
     const API_URL = import.meta.env.VITE_API_URL;
-    const [deletedID, setdeletedID] = useState<string | null>(null);
+    const [deletedID, setDeletedID] = useState<string | null>(null);
+    const currentUserRole = members.find(member => member.id === currentUser.id)?.role || 'GUEST';
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
-    // @ts-ignore
-    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
-    // @ts-ignore
-    const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
     useEffect(() => {
         async function fetchGroupData() {
@@ -44,26 +45,18 @@ export default function GroupDetails() {
             const eventsResponse = await fetch(`${API_URL}/groups/${id}/events`, { headers: { Authorization: `Bearer ${token}` } });
             const eventsData = await eventsResponse.json();
             setEvents(eventsData);
-
-            const userResponse = await fetch(`${API_URL}/me`, { headers: { Authorization: `Bearer ${token}` } });
-            const userData = await userResponse.json();
-            setCurrentUserId(userData.id);
-
-            const currentUser = membersData.find((member: any) => member.user_id === userData.id);
-            setCurrentUserRole(currentUser ? currentUser.role : null);
         }
 
         fetchGroupData();
     }, [id]);
 
     const handleRightClick = (event: React.MouseEvent, member: any) => {
-        if (member.role != 'OWNER'){
+        if (member.role !== 'OWNER'){
             event.preventDefault();
-
             const { clientX: x, clientY: y } = event;
             const maxX = window.innerWidth - 150;
             const maxY = window.innerHeight - 50;
-            setdeletedID(member.id);
+            setDeletedID(member.id);
 
             setContextMenu({
                 visible: true,
@@ -74,13 +67,11 @@ export default function GroupDetails() {
         }
     };
 
-
     useEffect(() => {
         const handleClickOutside = () => setContextMenu(null);
         document.addEventListener("click", handleClickOutside);
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
-
 
     const handleRemoveUser = async () => {
         const token = getAuthToken();
@@ -96,7 +87,7 @@ export default function GroupDetails() {
                 }
             );
             console.log('User removed successfully', response);
-        } catch (error) {// @ts-ignore
+        } catch (error) {
             console.error('Error removing user', error.response ? error.response.data : error.message);
         }
 
@@ -104,19 +95,45 @@ export default function GroupDetails() {
         setContextMenu(null);
     };
 
-    const handleCreateEvent = async () => {
-        const token = getAuthToken();
-        const eventData = { title: newEvent.title, description: newEvent.description, start_time: newEvent.start, end_time: newEvent.end };
+    const handleDateSelect = (selectInfo: any) => {
+        // Set the start and end time when a date is selected
+        const selectedStart = selectInfo.startStr;
+        const selectedEnd = selectInfo.endStr;
 
-        await fetch(`${API_URL}/groups/${id}/events`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` },
-            body: JSON.stringify(eventData),
-        });
-
-        setShowNewEventModal(false);
-        setNewEvent({ title: '', description: '', start: '', end: '' });
+        // Open the modal and pass the selected start date
+        setShowNewEventModal(true);
+        setNewEvent({ ...newEvent, start: selectedStart, end: selectedEnd });
     };
+
+
+    const handleEventCreated = () => {
+        // Rechargement des événements après la création d'un événement
+        async function fetchEvents() {
+            const token = getAuthToken();
+            const eventsResponse = await fetch(`${API_URL}/groups/${id}/events`, { headers: { Authorization: `Bearer ${token}` } });
+            const eventsData = await eventsResponse.json();
+            setEvents(eventsData);
+        }
+        fetchEvents();
+    };
+
+    const handleEventClick = (event: any) => {
+        setSelectedEvent({
+            id: event.id,
+            title: event.title,
+            description: event.extendedProps.description || "Pas de description",
+            startTime: event.startStr,
+            endTime: event.endStr,
+            color: event.backgroundColor || "#000",
+            game: event.extendedProps.game || null,
+            eventSettings: event.extendedProps.eventSettings || null,
+        });
+        setIsModalOpen(true);
+    };
+
+    function handleEventDeleted(deletedEventId) {
+        setEvents(events.filter(event => event.id !== deletedEventId));
+    }
 
     return (
         <div className="flex h-[calc(100vh-4rem)]">
@@ -147,37 +164,51 @@ export default function GroupDetails() {
                         plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
                         initialView="dayGridMonth"
                         headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-                        events={events.map(event => ({ id: event.id, title: event.title, start: event.start_time, end: event.end_time, description: event.description }))}
+                        events={events.map(event => ({
+                            id: event.id,
+                            title: event.title,
+                            start: new Date(event.startTime).toISOString(),
+                            end: new Date(event.endTime).toISOString(),
+                            description: event.description,
+                            game: event.game,
+                            eventSettings: event.eventSettings,
+                            backgroundColor: event.color,
+                        }))}
                         editable={true}
                         selectable={true}
                         selectMirror={true}
                         dayMaxEvents={true}
-                        eventClick={(info) => alert(`Event: ${info.event.title}\nDescription: ${info.event.extendedProps.description}`)}// @ts-ignore
-                        select={(selectInfo) => setNewEvent({ title: '', description: '', start: selectInfo.startStr, end: selectInfo.endStr }) || setShowNewEventModal(true)}
+                        eventClick={({ event }) => handleEventClick(event)}
+                        select={handleDateSelect}
                         height="100%"
                     />
+
+                    {showNewEventModal && (
+                        <NewEventForm
+                            onClose={() => setShowNewEventModal(false)}
+                            onEventCreated={handleEventCreated}
+                            datestartTime={newEvent.start}
+                        />
+                    )}
                 </div>
             </div>
 
             {/* Context Menu */}
             {contextMenu?.visible && (
                 <div className="absolute bg-gray-800 text-white rounded shadow-lg py-2 px-4" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                    <button onClick={() => handleRemoveUser()} className="block px-4 py-2 text-sm hover:bg-red-600 w-full text-left">Remove User</button>
+                    <button onClick={handleRemoveUser} className="block px-4 py-2 text-sm hover:bg-red-600 w-full text-left">Remove User</button>
                 </div>
             )}
 
-            {/* New Event Modal */}
-            {showNewEventModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                    <div className="bg-black text-white rounded-lg p-6 w-96">
-                        <h3 className="text-lg font-semibold mb-4">Create New Event</h3>
-                        <input type="text" placeholder="Title" value={newEvent.title} onChange={(e) => setNewEvent({ ...newEvent, title: e.target.value })} className="w-full p-2 mb-2 rounded bg-gray-800 text-white" />
-                        <textarea placeholder="Description" value={newEvent.description} onChange={(e) => setNewEvent({ ...newEvent, description: e.target.value })} className="w-full p-2 mb-2 rounded bg-gray-800 text-white" />
-                        <button onClick={handleCreateEvent} className="bg-indigo-600 text-white px-4 py-2 rounded w-full">Create</button>
-                    </div>
-                </div>
-            )}
             {showInviteModal && <InviteUserModal groupId={id as string} onClose={() => setShowInviteModal(false)} />}
+
+            <EventDetailsModal
+                event={selectedEvent}
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onEventDeleted={handleEventDeleted}
+                userRole={currentUserRole}  // OWNER / MODERATOR / MEMBER
+            />
         </div>
     );
 }

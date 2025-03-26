@@ -10,6 +10,7 @@ import Auth from './pages/Auth';
 import SignUp from './pages/SignUp.tsx';
 import GroupDetails from "./pages/GroupDetail.tsx";
 import AdminRoute from "./components/AdminRoute.tsx";
+import Games from "./pages/GameList.tsx";
 
 function App() {
     return (
@@ -34,7 +35,7 @@ function App() {
                                 path="/game"
                                 element={
                                     <AdminRoute>
-                                        <Groups />
+                                        <Games />
                                     </AdminRoute>
                                 }
                             />
