@@ -22,13 +22,12 @@ export default function GroupDetails() {
     const [showInviteModal, setShowInviteModal] = useState(false);
     const [showNewEventModal, setShowNewEventModal] = useState(false);
     const [newEvent, setNewEvent] = useState({ title: '', description: '', start: '', end: '' });
-    const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; userId: string } | null>(null);
+    const [contextMenu, setContextMenu] = useState<{ visible: boolean; x: number; y: number; userId: string; role: string } | null>(null);
     const API_URL = import.meta.env.VITE_API_URL;
     const [deletedID, setDeletedID] = useState<string | null>(null);
     const currentUserRole = members.find(member => member.id === currentUser.id)?.role || 'GUEST';
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-
 
     useEffect(() => {
         async function fetchGroupData() {
@@ -50,19 +49,32 @@ export default function GroupDetails() {
         fetchGroupData();
     }, [id]);
 
+    const getNextHigherRole = (role: string) => {
+        switch (role) {
+            case "MEMBER": return "MODERATOR";
+            case "MODERATOR": return "ADMIN";
+            default: return role;
+        }
+    };
+
+    const getNextLowerRole = (role: string) => {
+        switch (role) {
+            case "ADMIN": return "MODERATOR";
+            case "MODERATOR": return "MEMBER";
+            default: return role;
+        }
+    };
+
     const handleRightClick = (event: React.MouseEvent, member: any) => {
-        if (member.role !== 'OWNER'){
+        if (member.role !== 'OWNER') {
             event.preventDefault();
             const { clientX: x, clientY: y } = event;
-            const maxX = window.innerWidth - 150;
-            const maxY = window.innerHeight - 50;
-            setDeletedID(member.id);
-
             setContextMenu({
                 visible: true,
-                x: Math.min(x, maxX),
-                y: Math.min(y, maxY),
-                userId: member.id
+                x: Math.min(x, window.innerWidth - 150),
+                y: Math.min(y, window.innerHeight - 50),
+                userId: member.id,
+                role: member.role
             });
         }
     };
@@ -73,13 +85,35 @@ export default function GroupDetails() {
         return () => document.removeEventListener("click", handleClickOutside);
     }, []);
 
+    const promoteMember = async () => {
+        if (!contextMenu) return;
+        try {
+            await axios.post(`${API_URL}/groups/${id}/promote`, { userId: contextMenu.userId }, { headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            setMembers(members.map(m => m.user_id === contextMenu.userId ? { ...m, role: getNextHigherRole(m.role) } : m));
+            location.reload()
+        } catch (error) {
+            alert("Erreur lors de la promotion : " + error.response?.data);
+        }
+    };
+
+    const demoteMember = async () => {
+        if (!contextMenu) return;
+        try {
+            await axios.post(`${API_URL}/groups/${id}/demote`, { userId: contextMenu.userId }, { headers: { Authorization: `Bearer ${getAuthToken()}` } });
+            setMembers(members.map(m => m.user_id === contextMenu.userId ? { ...m, role: getNextLowerRole(m.role) } : m));
+            location.reload()
+        } catch (error) {
+            alert("Erreur lors de la rétrogradation : " + error.response?.data);
+        }
+    };
+
     const handleRemoveUser = async () => {
         const token = getAuthToken();
 
         try {
             const response = await axios.post(
                 `${API_URL}/groups/${id}/remove`,
-                { userId: deletedID },
+                { userId: contextMenu.userId },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -87,6 +121,7 @@ export default function GroupDetails() {
                 }
             );
             console.log('User removed successfully', response);
+            location.reload()
         } catch (error) {
             console.error('Error removing user', error.response ? error.response.data : error.message);
         }
@@ -104,7 +139,6 @@ export default function GroupDetails() {
         setShowNewEventModal(true);
         setNewEvent({ ...newEvent, start: selectedStart, end: selectedEnd });
     };
-
 
     const handleEventCreated = () => {
         // Rechargement des événements après la création d'un événement
@@ -136,9 +170,9 @@ export default function GroupDetails() {
     }
 
     return (
-        <div className="flex h-[calc(100vh-4rem)]">
+        <div className="flex h-[calc(90vh-5rem)] border-gray-700">
             {/* Members Sidebar */}
-            <div className="w-64 bg-gray-900 text-white border-r border-gray-800 p-4">
+            <div className="w-64 bg-gray-900 text-white border-r border-gray-800 p-4 overflow-y-auto rounded-l-2xl ">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold">Members</h2>
                     <button onClick={() => setShowInviteModal(true)} className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Invite</button>
@@ -147,7 +181,7 @@ export default function GroupDetails() {
                 <div className="space-y-2">
                     {members.map((member) => (
                         <div key={member.user_id} className="flex items-center space-x-2 p-2 hover:bg-indigo-500 rounded relative" onContextMenu={(e) => handleRightClick(e, member)}>
-                            {member.avatar_url ? <img src={member.avatar_url} alt={member.pseudo} className="w-8 h-8 rounded-full" /> : <UserIcon className="w-8 h-8 p-1 bg-gray-100 rounded-full text-gray-600" />}
+                            {member.avatarUrl ? <img src={member.avatarUrl} alt={member.pseudo} className="w-8 h-8 rounded-full" /> : <UserIcon className="w-8 h-8 p-1 bg-gray-100 rounded-full text-gray-600" />}
                             <div className="flex-1">
                                 <p className="text-sm font-medium">{member.pseudo}</p>
                                 <p className="text-xs">{member.role}</p>
@@ -158,45 +192,65 @@ export default function GroupDetails() {
             </div>
 
             {/* Calendar */}
-            <div className="flex-1 p-4">
-                <div className="rounded-lg shadow-lg h-full p-4">
-                    <FullCalendar
-                        plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
-                        initialView="dayGridMonth"
-                        headerToolbar={{ left: 'prev,next today', center: 'title', right: 'dayGridMonth,timeGridWeek,timeGridDay' }}
-                        events={events.map(event => ({
-                            id: event.id,
-                            title: event.title,
-                            start: new Date(event.startTime).toISOString(),
-                            end: new Date(event.endTime).toISOString(),
-                            description: event.description,
-                            game: event.game,
-                            eventSettings: event.eventSettings,
-                            backgroundColor: event.color,
-                        }))}
-                        editable={true}
-                        selectable={true}
-                        selectMirror={true}
-                        dayMaxEvents={true}
-                        eventClick={({ event }) => handleEventClick(event)}
-                        select={handleDateSelect}
-                        height="100%"
-                    />
+            <div className="flex-1 p-6 overflow-hidden bg-gray-800 rounded-r-2xl">
+                <FullCalendar
+                    plugins={[dayGridPlugin, timeGridPlugin, interactionPlugin]}
+                    initialView="dayGridMonth"
+                    headerToolbar={{
+                        left: 'prev,next today',
+                        center: 'title',
+                        right: 'dayGridMonth'
+                    }}
+                    events={events.map(event => ({
+                        id: event.id,
+                        title: event.title,
+                        start: new Date(event.startTime).toISOString(),
+                        end: new Date(event.endTime).toISOString(),
+                        description: event.description,
+                        game: event.game,
+                        eventSettings: event.eventSettings,
+                        backgroundColor: event.color,
+                        className: "absolute left-1 top-1/2 transform -translate-y-1/2 bg-white/20 px-1 rounded text-xs truncate max-w-24"
+                    }))}
+                    editable={true}
+                    selectable={true}
+                    selectMirror={true}
+                    dayMaxEvents={true}
+                    eventClick={({ event }) => handleEventClick(event)}
+                    select={handleDateSelect}
+                    height="auto"
+                    dayHeaderClassNames={"bg-gray-800 text-xs text-gray-400 mb-2"}
+                    dayCellClassNames={"relative p-2 rounded text-sm h-16 text-white hover:bg-gray-700"}
 
-                    {showNewEventModal && (
-                        <NewEventForm
-                            onClose={() => setShowNewEventModal(false)}
-                            onEventCreated={handleEventCreated}
-                            datestartTime={newEvent.start}
-                        />
-                    )}
-                </div>
+                />
+
+                {showNewEventModal && (
+                    <NewEventForm
+                        onClose={() => setShowNewEventModal(false)}
+                        onEventCreated={handleEventCreated}
+                        datestartTime={newEvent.start}
+                    />
+                )}
             </div>
 
             {/* Context Menu */}
             {contextMenu?.visible && (
                 <div className="absolute bg-gray-800 text-white rounded shadow-lg py-2 px-4" style={{ top: contextMenu.y, left: contextMenu.x }}>
-                    <button onClick={handleRemoveUser} className="block px-4 py-2 text-sm hover:bg-red-600 w-full text-left">Remove User</button>
+                    <button onClick={handleRemoveUser} className="block px-4 py-2 text-sm hover:bg-red-600 w-full text-left">Kick User</button>
+                    <button
+                        onClick={promoteMember}
+                        disabled={contextMenu.role === "ADMIN"}
+                        className={`block px-4 py-2 text-sm w-full text-left ${contextMenu.role === "ADMIN" ? "opacity-50 cursor-not-allowed" : "hover:bg-green-600"}`}
+                    >
+                        Promouvoir
+                    </button>
+                    <button
+                        onClick={demoteMember}
+                        disabled={contextMenu.role === "MEMBER" || contextMenu.role === "GUEST"}
+                        className={`block px-4 py-2 text-sm w-full text-left ${contextMenu.role === "MEMBER" || contextMenu.role === "GUEST" ? "opacity-50 cursor-not-allowed" : "hover:bg-yellow-600"}`}
+                    >
+                        Rétrograder
+                    </button>
                 </div>
             )}
 

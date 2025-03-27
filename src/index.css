@@ -6,3 +6,15 @@
     max-height: 80vh;  /* Limite la hauteur de la modal */
     overflow-y: auto;  /* Active le défilement vertical si nécessaire */
 }
+
+.fc-theme-standard td, .fc-theme-standard th {
+    border: gray;
+}
+
+.fc-theme-standard .fc-scrollgrid {
+    border: gray;
+}
+
+.fc-toolbar-title {
+    color: white;
+}

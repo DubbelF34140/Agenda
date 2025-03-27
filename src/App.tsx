@@ -11,14 +11,15 @@ import SignUp from './pages/SignUp.tsx';
 import GroupDetails from "./pages/GroupDetail.tsx";
 import AdminRoute from "./components/AdminRoute.tsx";
 import Games from "./pages/GameList.tsx";
+import UserProfile from "./pages/UserProfile.tsx";
 
 function App() {
     return (
         <Router>
             <AuthProvider>
-                <div className="min-h-screen bg-gray-50">
+                <div className="h-full min-h-screen bg-gradient-to-b from-indigo-900 via-purple-500 to-black">
                     <Navbar />
-                    <main className="container mx-auto px-4 py-8">
+                    <main className="container mx-auto px-4 py-8 ">
                         <Routes>
                             <Route path="/" element={<Home />} />
                             <Route path="/auth" element={<Auth />} />
@@ -28,6 +29,14 @@ function App() {
                                 element={
                                     <PrivateRoute>
                                         <Groups />
+                                    </PrivateRoute>
+                                }
+                            />
+                            <Route
+                                path="/profile"
+                                element={
+                                    <PrivateRoute>
+                                        <UserProfile />
                                     </PrivateRoute>
                                 }
                             />

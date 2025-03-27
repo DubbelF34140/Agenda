@@ -164,35 +164,35 @@ export default function NewEventForm({ onClose, onEventCreated, datestartTime })
                         <div className="team-settings mb-4">
                             <h3 className="text-xl mb-2">Paramètres d'équipes</h3>
                             {eventData.settings.map((setting, index) => (
-                                <div key={index} className="setting-input mb-3">
-                                    <label className="block text-sm font-medium">{setting.key}</label>
-                                    {/* Affichage des types de paramètres */}
-                                    {setting.valueType === 'LIST' ? (
-                                        <Autocomplete
-                                            multiple
-                                            id={`autocomplete-${setting.key}`}
-                                            options={setting.options}
-                                            value={setting.value ? setting.value.split(',').map(item => item.trim()) : []}
-                                            onChange={(event, newValue) => handleSettingChange(index, newValue)}
-                                            renderInput={(params) => (
-                                                <TextField
-                                                    {...params}
-                                                    variant="outlined"
-                                                    placeholder="Sélectionner des options"
-                                                    className="w-full p-3 mb-2 rounded bg-gray-600 text-white border border-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                                (setting.key !== 'Rank' || eventData.settings.find(s => s.key === 'Ranked')?.value === 'true') && (
+                                    <div key={index} className="setting-input mb-3">
+                                        <label className="block text-sm font-medium">{setting.key}</label>
+                                        {setting.valueType === 'BOOLEAN' ? (
+                                            <div className="flex items-center mb-2">
+                                                <input
+                                                    type="checkbox"
+                                                    checked={setting.value === 'true'}
+                                                    onChange={(e) => handleSettingChange(index, e.target.checked ? 'true' : 'false')}
+                                                    className="mr-2"
                                                 />
-                                            )}
-                                            renderTags={(value, getTagProps) =>
-                                                value.map((option, index) => (
-                                                    <Chip
-                                                        label={option}
-                                                        {...getTagProps({index})}
-                                                        className="mr-2 mb-2"
-                                                    />
-                                                ))
-                                            }
-                                        />
-                                    ) : setting.valueType === 'INTEGER' ? (
+                                                <label className="text-sm text-gray-400">{setting.key}</label>
+                                            </div>
+                                        ) : setting.valueType === 'LIST' ? (
+                                            <Autocomplete
+                                                multiple
+                                                options={setting.options}
+                                                value={setting.value ? setting.value.split(',').map(item => item.trim()) : []}
+                                                onChange={(event, newValue) => handleSettingChange(index, newValue)}
+                                                renderInput={(params) => (
+                                                    <TextField {...params} variant="outlined" placeholder="Sélectionner des options" />
+                                                )}
+                                                renderTags={(value, getTagProps) =>
+                                                    value.map((option, i) => (
+                                                        <Chip key={i} label={option} {...getTagProps({ i })} className="mr-2 mb-2" />
+                                                    ))
+                                                }
+                                            />
+                                        ) : setting.valueType === 'INTEGER' ? (
                                         <input
                                             type="number"
                                             value={setting.value}
@@ -220,7 +220,7 @@ export default function NewEventForm({ onClose, onEventCreated, datestartTime })
                                         </div>
                                     ) : null}
                                 </div>
-                            ))}
+                            )))}
                         </div>
                     )}
 

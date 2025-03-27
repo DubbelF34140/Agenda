@@ -77,8 +77,8 @@ export default function InviteUserModal({ groupId, onClose }: InviteUserModalPro
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-            <div className="bg-white p-6 rounded-lg shadow-lg w-96">
-                <h2 className="text-xl font-semibold mb-4">Inviter un membre</h2>
+            <div className="bg-gray-800 border border-gray-700 p-6 rounded-lg shadow-lg w-96">
+                <h2 className="text-white font-semibold mb-4">Inviter un membre</h2>
 
                 {error && <p className="text-red-500">{error}</p>}
                 {success && <p className="text-green-500">{success}</p>}
@@ -99,6 +99,7 @@ export default function InviteUserModal({ groupId, onClose }: InviteUserModalPro
                                 <li
                                     key={user.id}
                                     onClick={() => {
+                                        setFilteredUsers([]);
                                         setSelectedUser(user);
                                         setSearchTerm(user.pseudo);
                                     }}
@@ -114,7 +115,7 @@ export default function InviteUserModal({ groupId, onClose }: InviteUserModalPro
                 <div className="flex justify-end space-x-2">
                     <button
                         onClick={onClose}
-                        className="px-4 py-2 bg-gray-400 text-white rounded hover:bg-gray-500"
+                        className="px-4 py-2 bg-red-700 text-white rounded hover:bg-red-800"
                     >
                         Annuler
                     </button>

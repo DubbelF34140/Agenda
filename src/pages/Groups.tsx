@@ -130,15 +130,15 @@ export default function Groups() {
           {groups.map((group) => (
               <div
                   key={group.id}
-                  className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-100"
+                  className="bg-gray-800 rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 border border-gray-700"
               >
                 <div className="p-6">
                   <div className="flex justify-between items-start mb-4">
                     <div>
-                      <h2 className="text-2xl font-bold text-gray-900 mb-2">
+                      <h2 className="text-2xl font-bold text-white mb-2">
                         {group.name}
                       </h2>
-                      <p className="text-gray-600 text-sm mb-4">{group.description}</p>
+                      <p className="text-gray-300 text-sm mb-4">{group.description}</p>
                     </div>
                     {/*// @ts-ignore*/}
                     {group.createdBy.avatarUrl && (
