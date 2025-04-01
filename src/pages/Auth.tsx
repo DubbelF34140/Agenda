@@ -37,11 +37,11 @@ export default function Auth() {
   };
 
   return (
-      <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8">
-        <h2 className="text-2xl font-bold text-center mb-6">Sign In</h2>
+      <div className="max-w-md mx-auto bg-gray-700 rounded-lg shadow-md p-8">
+        <h2 className="text-2xl font-bold text-white text-center mb-6">Sign In</h2>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="email" className="block text-sm font-medium text-white">
               Email
             </label>
             <input
@@ -55,7 +55,7 @@ export default function Auth() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+            <label htmlFor="password" className="block text-sm font-medium text-white">
               Password
             </label>
             <input
@@ -80,7 +80,7 @@ export default function Auth() {
         </form>
 
         {/* Lien vers la page d'inscription */}
-        <p className="text-center text-sm text-gray-600 mt-4">
+        <p className="text-center text-sm text-white mt-4">
           Don't have an account?{' '}
           <Link to="/signup" className="text-indigo-600 hover:underline">
             Sign Up

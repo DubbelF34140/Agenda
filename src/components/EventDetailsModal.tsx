@@ -239,9 +239,6 @@ export default function EventDetailsModal({ event, open, onClose, onEventDeleted
                         {event.game && (
                             <div className="mt-4 bg-gray-700 p-3 rounded">
                                 <p><strong>Jeu: </strong> {event.game.name}</p>
-                                <p>
-                                    <strong>Informations: </strong> {event.game.description || "Aucune description disponible"}
-                                </p>
                             </div>
                         )}
 

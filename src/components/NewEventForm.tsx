@@ -188,7 +188,7 @@ export default function NewEventForm({ onClose, onEventCreated, datestartTime })
                                                 )}
                                                 renderTags={(value, getTagProps) =>
                                                     value.map((option, i) => (
-                                                        <Chip key={i} label={option} {...getTagProps({ i })} className="mr-2 mb-2" />
+                                                        <Chip key={i} label={option} {...getTagProps({ i })} className="mr-2 mb-2 text-white" />
                                                     ))
                                                 }
                                             />

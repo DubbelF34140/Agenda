@@ -111,7 +111,7 @@ export default function Groups() {
   return (
       <div className="max-w-6xl mx-auto p-6">
         <div className="flex justify-between items-center mb-8">
-          <h1 className="text-4xl font-extrabold text-gray-900">Gaming Groups</h1>
+          <h1 className="text-4xl font-extrabold text-white">Gaming Groups</h1>
           <button
               onClick={() => setShowCreateModal(true)}
               className="flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg"
@@ -138,7 +138,7 @@ export default function Groups() {
                       <h2 className="text-2xl font-bold text-white mb-2">
                         {group.name}
                       </h2>
-                      <p className="text-gray-300 text-sm mb-4">{group.description}</p>
+                      <p className="text-white text-sm mb-4">{group.description}</p>
                     </div>
                     {/*// @ts-ignore*/}
                     {group.createdBy.avatarUrl && (
@@ -184,7 +184,7 @@ export default function Groups() {
                     )}
                   </div>
 
-                  <div className="mt-4 text-xs text-gray-500 flex justify-between">
+                  <div className="mt-4 text-xs text-white flex justify-between">
                     {/*// @ts-ignore*/}
                     <span>Created by {group.createdBy.pseudo}</span>
                     {/*// @ts-ignore*/}
@@ -198,11 +198,11 @@ export default function Groups() {
         {/* Edit Modal - similar to previous implementation */}
         {showEditModal && editGroup && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg p-8 max-w-md w-full shadow-2xl">
-                <h2 className="text-2xl font-bold mb-6 text-gray-900">Edit Group</h2>
+              <div className="bg-gray-7s00 rounded-lg p-8 max-w-md w-full shadow-2xl">
+                <h2 className="text-2xl font-bold mb-6 text-white">Edit Group</h2>
                 <form onSubmit={handleEditGroup} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Group Name</label>
+                    <label className="block text-sm font-medium text-white">Group Name</label>
                     <input
                         type="text"
                         value={editGroup.name}
@@ -213,7 +213,7 @@ export default function Groups() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">Description</label>
+                    <label className="block text-sm font-medium text-white">Description</label>
                     <textarea
                         value={editGroup.description}
                         /*// @ts-ignore*/
@@ -226,7 +226,7 @@ export default function Groups() {
                     <button
                         type="button"
                         onClick={() => setShowEditModal(false)}
-                        className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                        className="px-4 py-2 text-white hover:text-white"
                     >
                       Cancel
                     </button>
@@ -243,11 +243,11 @@ export default function Groups() {
         )}
         {showCreateModal && (
             <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4">
-              <div className="bg-white rounded-lg p-8 max-w-md w-full">
-                <h2 className="text-2xl font-bold mb-6">Create New Group</h2>
+              <div className="bg-gray-700 rounded-lg p-8 max-w-md w-full">
+                <h2 className="text-2xl font-bold mb-6 text-white">Create New Group</h2>
                 <form onSubmit={handleCreateGroup} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-white">
                       Group Name
                     </label>
                     <input
@@ -259,7 +259,7 @@ export default function Groups() {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700">
+                    <label className="block text-sm font-medium text-white">
                       Description
                     </label>
                     <textarea
@@ -273,7 +273,7 @@ export default function Groups() {
                     <button
                         type="button"
                         onClick={() => setShowCreateModal(false)}
-                        className="px-4 py-2 text-gray-700 hover:text-gray-900"
+                        className="px-4 py-2 text-white hover:text-white"
                     >
                       Cancel
                     </button>
