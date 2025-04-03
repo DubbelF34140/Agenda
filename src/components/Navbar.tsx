@@ -134,13 +134,13 @@ export default function Navbar() {
       <nav className="bg-gradient-to-r from-indigo-600 to-purple-700 shadow-xl">
         <div className="container mx-auto px-4 py-3">
           <div className="flex justify-between items-center">
-            {/* Logo */}
             <Link to="/" className="flex items-center space-x-3 group">
-            <span className="text-2xl font-bold text-white tracking-wider">
-              Gaming Groups
-            </span>
+              <img
+                  src="https://imagedelivery.net/8Kpv_HmNOrZyvof2hmLoMA/794728fa-5f43-4176-b84b-846733f87900/public"
+                  alt="Avatar"
+                  className="w-20 h-15 rounded-full object-cover"
+              />
             </Link>
-
             {/* Navigation Links */}
             <div className="flex items-center space-x-4">
               <Link
