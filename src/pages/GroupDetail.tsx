@@ -16,6 +16,7 @@ const getAuthToken = () => localStorage.getItem('authToken');
 export default function GroupDetails() {
     const [currentUser, setCurrentUser] = useState(JSON.parse(localStorage.getItem('user') as string));
     const { id } = useParams<{ id: string }>();
+    const [loading, setLoading] = useState(true);
     const [group, setGroup] = useState<any>(null);
     const [members, setMembers] = useState<any[]>([]);
     const [events, setEvents] = useState<any[]>([]);
@@ -44,6 +45,7 @@ export default function GroupDetails() {
             const eventsResponse = await fetch(`${API_URL}/groups/${id}/events`, { headers: { Authorization: `Bearer ${token}` } });
             const eventsData = await eventsResponse.json();
             setEvents(eventsData);
+            setLoading(false);
         }
 
         fetchGroupData();
@@ -167,6 +169,19 @@ export default function GroupDetails() {
 
     function handleEventDeleted(deletedEventId) {
         setEvents(events.filter(event => event.id !== deletedEventId));
+    }
+
+    if (loading) {
+        return (
+            <div className="flex flex-col justify-center items-center h-64">
+                <div className="relative">
+                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-t-4 border-purple-600"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-l-4 border-r-4 border-green-500 absolute top-2 left-2"></div>
+                    <div className="animate-ping absolute inset-0 rounded-full bg-blue-400 opacity-20"></div>
+                </div>
+                <p className="text-green-500 font-bold mt-4 animate-pulse">LOADING...</p>
+            </div>
+        );
     }
 
     return (

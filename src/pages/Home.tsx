@@ -7,11 +7,11 @@ export default function Home() {
   const isLoggedIn = !!localStorage.getItem('authToken');
 
   return (
-      <div className="bg-gray-900 text-white min-h-screen w-full" style={{ paddingTop: "8vh" }}>
+      <div className="text-white min-h-screen w-full" style={{ paddingTop: "8vh" }}>
         {/* Hero Section */}
         <div className="relative overflow-hidden">
           {/* Animated Background */}
-          <div className="absolute inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-black opacity-75 animate-gradient-slow"></div>
+          <div className="absolute rounded-xl inset-0 bg-gradient-to-br from-indigo-900 via-purple-900 to-black opacity-75 animate-gradient-slow"></div>
 
           {/* Hero Content */}
           <div className="relative container mx-auto px-4 py-12 md:py-24 text-center">
@@ -88,7 +88,7 @@ export default function Home() {
         </div>
 
         {/* Gaming Setup Section */}
-        <div className="bg-gray-800 p-4 md:p-6 text-center transform transition-all relative">
+        <div className="bg-gray-800 rounded-xl p-4 md:p-6 text-center transform transition-all relative">
           {/* Subtle Gradient Background */}
           <div className="absolute inset-0 bg-gradient-to-br from-indigo-900/20 via-purple-900/10 to-black/20 pointer-events-none"></div>
 

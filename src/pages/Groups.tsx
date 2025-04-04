@@ -102,8 +102,13 @@ export default function Groups() {
 
   if (loading) {
     return (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <div className="flex flex-col justify-center items-center h-64">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-t-4 border-purple-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-l-4 border-r-4 border-green-500 absolute top-2 left-2"></div>
+            <div className="animate-ping absolute inset-0 rounded-full bg-blue-400 opacity-20"></div>
+          </div>
+          <p className="text-green-500 font-bold mt-4 animate-pulse">LOADING...</p>
         </div>
     );
   }
