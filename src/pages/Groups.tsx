@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
 import type { Group } from '../types';
+import Skeleton from '@mui/material/Skeleton';
 
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -102,13 +103,52 @@ export default function Groups() {
 
   if (loading) {
     return (
-        <div className="flex flex-col justify-center items-center h-64">
-          <div className="relative">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-t-4 border-purple-600"></div>
-            <div className="animate-spin rounded-full h-12 w-12 border-l-4 border-r-4 border-green-500 absolute top-2 left-2"></div>
-            <div className="animate-ping absolute inset-0 rounded-full bg-blue-400 opacity-20"></div>
+        <div className="max-w-6xl mx-auto p-6">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-4xl font-extrabold text-white">Gaming Groups</h1>
+            <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center px-5 py-2.5 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors shadow-md hover:shadow-lg"
+            >
+              Create Group
+            </button>
           </div>
-          <p className="text-green-500 font-bold mt-4 animate-pulse">LOADING...</p>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {[1, 2, 3, 4, 5, 6].map((item) => (
+                <div
+                    key={item}
+                    className="bg-gray-800 rounded-xl shadow-lg border border-gray-700"
+                >
+                  <div className="p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                      <Skeleton variant="text" width={180} height={32} sx={{ bgcolor: 'grey.700', marginBottom: '8px' }} />
+                        <Skeleton variant="text" width={240} height={20} sx={{ bgcolor: 'grey.700', marginBottom: '16px' }} />
+                      </div>
+                      <Skeleton variant="circular" width={40} height={40} sx={{ bgcolor: 'grey.700', border: '2px solid #E0E7FF' }} />
+                    </div>
+
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center">
+                        <Skeleton variant="text" width={100} height={24} sx={{ bgcolor: 'grey.700' }} />
+                        <Skeleton variant="circular" width={20} height={20} sx={{ bgcolor: 'grey.700', marginLeft: '8px' }} />
+                      </div>
+
+                      <div className="flex space-x-2">
+                        <Skeleton variant="rounded" width={50} height={30} sx={{ bgcolor: 'grey.700' }} />
+                        <Skeleton variant="rounded" width={60} height={30} sx={{ bgcolor: 'grey.700' }} />
+                      </div>
+                    </div>
+
+                    <div className="mt-4 text-xs flex justify-between">
+                      <Skeleton variant="text" width={120} height={16} sx={{ bgcolor: 'grey.700' }} />
+                      <Skeleton variant="text" width={80} height={16} sx={{ bgcolor: 'grey.700' }} />
+                    </div>
+                  </div>
+                </div>
+            ))}
+          </div>
         </div>
     );
   }

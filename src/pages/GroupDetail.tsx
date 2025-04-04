@@ -9,6 +9,8 @@ import InviteUserModal from '../components/InviteUserModal';
 import NewEventForm from '../components/NewEventForm';
 import axios from "axios";
 import EventDetailsModal from "../components/EventDetailsModal.tsx";
+import Skeleton from '@mui/material/Skeleton';
+
 
 // Fonction pour récupérer le token JWT depuis le localStorage
 const getAuthToken = () => localStorage.getItem('authToken');
@@ -173,16 +175,44 @@ export default function GroupDetails() {
 
     if (loading) {
         return (
-            <div className="flex flex-col justify-center items-center h-64">
-                <div className="relative">
-                    <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-t-4 border-purple-600"></div>
-                    <div className="animate-spin rounded-full h-12 w-12 border-l-4 border-r-4 border-green-500 absolute top-2 left-2"></div>
-                    <div className="animate-ping absolute inset-0 rounded-full bg-blue-400 opacity-20"></div>
+            <div className="flex h-[calc(90vh-5rem)]">
+                {/* Sidebar Skeleton */}
+                <div className="w-64 bg-gray-900 text-white border-r border-gray-800 p-4 overflow-y-auto rounded-l-2xl">
+                    <div className="flex justify-between items-center mb-6">
+                        <Skeleton variant="text" width={100} height={24} sx={{ bgcolor: 'grey.700' }} />
+                        <Skeleton variant="rounded" width={60} height={32} sx={{ bgcolor: 'primary.dark' }} />
+                    </div>
+
+                    <div className="space-y-4">
+                        {[...Array(6)].map((_, i) => (
+                            <div key={i} className="flex items-center space-x-3 p-2 hover:bg-gray-700 rounded">
+                                <Skeleton variant="circular" width={36} height={36} sx={{ bgcolor: 'grey.600' }} />
+                                <div className="flex-1">
+                                    <Skeleton variant="text" width="75%" height={20} sx={{ bgcolor: 'grey.600' }} />
+                                    <Skeleton variant="text" width="50%" height={16} sx={{ bgcolor: 'grey.700' }} />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
                 </div>
-                <p className="text-green-500 font-bold mt-4 animate-pulse">LOADING...</p>
+
+                {/* Calendar Skeleton */}
+                <div className="flex-1 p-6 overflow-hidden bg-gray-800 rounded-r-2xl">
+                    <Skeleton variant="text" width={200} height={30} sx={{ bgcolor: 'grey.700', marginBottom: 3 }} />
+
+                    <div className="grid grid-cols-7 gap-3">
+                        {[...Array(35)].map((_, i) => (
+                            <div key={i} className="bg-gray-700 rounded-lg h-20 p-3 flex flex-col justify-between shadow-sm">
+                                <Skeleton variant="text" width="30%" height={20} sx={{ bgcolor: 'grey.600' }} />
+                                <Skeleton variant="text" width="60%" height={16} sx={{ bgcolor: 'grey.600' }} />
+                            </div>
+                        ))}
+                    </div>
+                </div>
             </div>
         );
     }
+
 
     return (
         <div className="flex h-[calc(90vh-5rem)] border-gray-700">
@@ -190,12 +220,15 @@ export default function GroupDetails() {
             <div className="w-64 bg-gray-900 text-white border-r border-gray-800 p-4 overflow-y-auto rounded-l-2xl ">
                 <div className="flex justify-between items-center mb-4">
                     <h2 className="text-lg font-semibold">Members</h2>
-                    <button onClick={() => setShowInviteModal(true)} className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Invite</button>
+                    <button onClick={() => setShowInviteModal(true)}
+                            className="px-3 py-1 bg-indigo-600 text-white text-sm rounded hover:bg-indigo-700">Invite
+                    </button>
                 </div>
 
                 <div className="space-y-2">
                     {members.map((member) => (
-                        <div key={member.user_id} className="flex items-center space-x-2 p-2 hover:bg-indigo-500 rounded relative" onContextMenu={(e) => handleRightClick(e, member)}>
+                        <div key={member.user_id}
+                             className="flex items-center space-x-2 p-2 hover:bg-indigo-500 rounded relative" onContextMenu={(e) => handleRightClick(e, member)}>
                             {member.avatarUrl ? <img src={member.avatarUrl} alt={member.pseudo} className="w-8 h-8 rounded-full" /> : <UserIcon className="w-8 h-8 p-1 bg-gray-100 rounded-full text-gray-600" />}
                             <div className="flex-1">
                                 <p className="text-sm font-medium">{member.pseudo}</p>
