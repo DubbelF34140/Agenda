@@ -19,11 +19,16 @@ export default function Games() {
     }, []);
 
     const handleImageUpload = async (file: File) => {
+        if (!file) return null;
+
         const formData = new FormData();
         formData.append('image', file);
 
         const token = localStorage.getItem('authToken');
-        if (!token) return;
+        if (!token) {
+            console.error('No authentication token found');
+            return null;
+        }
 
         try {
             const response = await fetch(`${API_URL}/upload`, {
@@ -35,10 +40,15 @@ export default function Games() {
             });
 
             const data = await response.json();
-            if (!response.ok) throw new Error(data.error || 'Failed to upload image');
+            if (!response.ok) {
+                throw new Error(data.error || 'Failed to upload image');
+            }
 
             return data.imageUrl; // Return the uploaded image URL
         } catch (err) {
+            console.error('Error uploading image:', err);
+            // Vous pourriez ajouter une notification d'erreur ici
+            return null;
         }
     };
 
@@ -55,14 +65,27 @@ export default function Games() {
 
     async function handleCreateGame(e) {
         e.preventDefault();
-        const avatarUrl = newGame ? await handleImageUpload(newAvatar) : newGame.avatarUrl;
-        newGame.avatarUrl = avatarUrl;
         try {
-            await axios.post(`${API_URL}/games`, newGame, {
+            // Créer une copie de l'objet newGame pour ne pas modifier l'état directement
+            const gameToCreate = { ...newGame };
+
+            // Si un nouvel avatar a été sélectionné, téléchargez-le et obtenez l'URL
+            if (newAvatar) {
+                const avatarUrl = await handleImageUpload(newAvatar);
+                if (avatarUrl) {
+                    gameToCreate.avatarUrl = avatarUrl;
+                }
+            }
+
+            // Envoi des données du jeu au serveur
+            await axios.post(`${API_URL}/games`, gameToCreate, {
                 headers: { 'Authorization': `Bearer ${token}` },
             });
+
+            // Réinitialisation des états et rafraîchissement de la liste des jeux
             setShowCreateModal(false);
-            setNewGame({ name: '', description: '', avatarUrl : '', settings: [], playersettings: [] });
+            setNewGame({ name: '', description: '', avatarUrl: '', settings: [], playersettings: [] });
+            setNewAvatar(null);
             fetchGames();
         } catch (error) {
             console.error('Error creating game:', error);
